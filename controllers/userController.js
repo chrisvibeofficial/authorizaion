@@ -111,8 +111,6 @@ exports.verify = async (req, res) => {
         }
       } else {
         const user = await userModel.findById(payload.userId);
-        console.log(user);
-        
 
         if (!user) {
           return res.status(404).json({
@@ -138,6 +136,38 @@ exports.verify = async (req, res) => {
     console.log(error.message);
     res.status(500).json({
       message: 'Error Verifyng User'
+    })
+  }
+};
+
+
+exports.makeAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await userModel.findById(id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: 'User not found'
+      })
+    };
+
+    if (user.isVerified === false) {
+      return res.status(400).json({
+        message: 'User is not verified'
+      })
+    };
+
+    user.isAdmin = true;
+    await user.save();
+
+    res.status(200).json({
+      message: 'User is now an admin'
+    })
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({
+      message: 'Internal Server Error'
     })
   }
 }
